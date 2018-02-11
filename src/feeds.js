@@ -291,10 +291,21 @@ feeds.fetchEvents = function() {
 feeds.fetchEventsFromCalendar_ = function(feed, callback) {
   background.log('feeds.fetchEventsFromCalendar_()', feed.title);
 
+  chrome.identity.getAuthToken({'interactive': false}, function (authToken) {
+    if (chrome.runtime.lastError || !authToken) {
+      background.log('getAuthToken', chrome.runtime.lastError.message);
+      chrome.extension.sendMessage({method: 'sync-icon.spinning.stop'});
+      feeds.refreshUI();
+      return;
+    }
+    _gaq.push(['_trackEvent', 'Fetch', 'Events']);
+
+
+
+  var fromDate = moment();
   var fetchEventsRecursively = function(days) {
     console.log("fetchEventsRecursively hello, days: " + days)
 
-  var fromDate = moment();
   var toDate = moment().add('days', days);
 
   var feedUrl = feeds.CALENDAR_EVENTS_API_URL_.replace('{calendarId}', encodeURIComponent(feed.id)) + ([
@@ -304,15 +315,6 @@ feeds.fetchEventsFromCalendar_ = function(feed, callback) {
     'orderBy=startTime',
     'singleEvents=true'
   ].join('&'));
-
-  chrome.identity.getAuthToken({'interactive': false}, function (authToken) {
-    if (chrome.runtime.lastError || !authToken) {
-      background.log('getAuthToken', chrome.runtime.lastError.message);
-      chrome.extension.sendMessage({method: 'sync-icon.spinning.stop'});
-      feeds.refreshUI();
-      return;
-    }
-    _gaq.push(['_trackEvent', 'Fetch', 'Events']);
 
     $.ajax(feedUrl, {
       headers: {
@@ -374,13 +376,15 @@ feeds.fetchEventsFromCalendar_ = function(feed, callback) {
         callback(null);
       }
     });
-  });
+
 
 
   };
 
-  console.log("before fetchEventsRecursively")
-  fetchEventsRecursively(feeds.DAYS_IN_AGENDA_);
+    console.log("before fetchEventsRecursively")
+    fetchEventsRecursively(feeds.DAYS_IN_AGENDA_);
+
+  });
 
 };
 
