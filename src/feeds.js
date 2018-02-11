@@ -57,6 +57,8 @@ feeds.CALENDAR_EVENTS_API_URL_ =
  */
 feeds.DAYS_IN_AGENDA_ = 14;
 
+feeds.MAX_DAYS_IN_AGENDA_ = 100;
+
 /**
  * All events from visible calendars obtained during the last fetch.
  * @type {Array.<Object>}
@@ -289,12 +291,8 @@ feeds.fetchEvents = function() {
 feeds.fetchEventsFromCalendar_ = function(feed, callback) {
   background.log('feeds.fetchEventsFromCalendar_()', feed.title);
 
-
-  var maxDays = 100;
-  var daysInAgenda = feeds.DAYS_IN_AGENDA_;
-
-  var fff = function(days) {
-    console.log("fff hello, days: " + days)
+  var fetchEventsRecursively = function(days) {
+    console.log("fetchEventsRecursively hello, days: " + days)
 
   var fromDate = moment();
   var toDate = moment().add('days', days);
@@ -356,8 +354,8 @@ feeds.fetchEventsFromCalendar_ = function(feed, callback) {
           }
 
           var ddd = days + feeds.DAYS_IN_AGENDA_;
-          if (data.items.length == 0 && ddd < maxDays) {
-            fff(ddd);
+          if (data.items.length == 0 && ddd < feeds.MAX_DAYS_IN_AGENDA_) {
+            fetchEventsRecursively(ddd);
             return;
           }
 
@@ -381,8 +379,8 @@ feeds.fetchEventsFromCalendar_ = function(feed, callback) {
 
   };
 
-  console.log("before fff")
-  fff(daysInAgenda);
+  console.log("before fetchEventsRecursively")
+  fetchEventsRecursively(feeds.DAYS_IN_AGENDA_);
 
 };
 
