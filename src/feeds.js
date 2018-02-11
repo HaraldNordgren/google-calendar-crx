@@ -289,8 +289,15 @@ feeds.fetchEvents = function() {
 feeds.fetchEventsFromCalendar_ = function(feed, callback) {
   background.log('feeds.fetchEventsFromCalendar_()', feed.title);
 
+
+  var maxDays = 100;
+  var daysInAgenda = feeds.DAYS_IN_AGENDA_;
+
+  var fff = function(days) {
+    console.log("fff hello, days: " + days)
+
   var fromDate = moment();
-  var toDate = moment().add('days', feeds.DAYS_IN_AGENDA_);
+  var toDate = moment().add('days', days);
 
   var feedUrl = feeds.CALENDAR_EVENTS_API_URL_.replace('{calendarId}', encodeURIComponent(feed.id)) + ([
     'timeMin=' + encodeURIComponent(fromDate.toISOString()),
@@ -347,6 +354,13 @@ feeds.fetchEventsFromCalendar_ = function(feed, callback) {
               responseStatus: responseStatus
             });
           }
+
+          var ddd = days + feeds.DAYS_IN_AGENDA_;
+          if (data.items.length == 0 && ddd < maxDays) {
+            fff(ddd);
+            return;
+          }
+
           callback(events);
         };
       })(feed),
@@ -363,6 +377,13 @@ feeds.fetchEventsFromCalendar_ = function(feed, callback) {
       }
     });
   });
+
+
+  };
+
+  console.log("before fff")
+  fff(daysInAgenda);
+
 };
 
 
