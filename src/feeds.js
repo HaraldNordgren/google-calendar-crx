@@ -322,6 +322,14 @@ feeds.fetchEventsFromCalendar_ = function(feed, callback) {
       },
       success: (function(feed) {
         return function(data) {
+          if (data.items.length == 0) {
+            var nextInterval = days + feeds.DAYS_IN_AGENDA_;
+            if (nextInterval < feeds.MAX_DAYS_IN_AGENDA_) {
+              fetchEventsRecursively(nextInterval);
+              return;
+            }
+          }
+
           background.log('Received events, now parsing.', feed.title);
           var events = [];
           for (var i = 0; i < data.items.length; i++) {
@@ -354,15 +362,6 @@ feeds.fetchEventsFromCalendar_ = function(feed, callback) {
               responseStatus: responseStatus
             });
           }
-
-          if (data.items.length == 0) {
-            var ddd = days + feeds.DAYS_IN_AGENDA_;
-            if (ddd < feeds.MAX_DAYS_IN_AGENDA_) {
-              fetchEventsRecursively(ddd);
-              return;
-            }
-          }
-
           callback(events);
         };
       })(feed),
