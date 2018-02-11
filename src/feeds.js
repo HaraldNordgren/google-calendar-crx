@@ -355,10 +355,12 @@ feeds.fetchEventsFromCalendar_ = function(feed, callback) {
             });
           }
 
-          var ddd = days + feeds.DAYS_IN_AGENDA_;
-          if (data.items.length == 0 && ddd < feeds.MAX_DAYS_IN_AGENDA_) {
-            fetchEventsRecursively(ddd);
-            return;
+          if (data.items.length == 0) {
+            var ddd = days + feeds.DAYS_IN_AGENDA_;
+            if (ddd < feeds.MAX_DAYS_IN_AGENDA_) {
+              fetchEventsRecursively(ddd);
+              return;
+            }
           }
 
           callback(events);
